@@ -4,42 +4,42 @@ Credit to: https://github.com/junyanz/pytorch-CycleGAN-and-pix2pix
 import functools
 import torch
 import torch.nn as nn
-
+from torch.nn import functional as F
 
 from .build import NETWORK_REGISTRY
 
 
+def init_network_weights(model, init_type="normal", gain=0.02):
 
+    def _init_func(m):
+        classname = m.__class__.__name__
+        if hasattr(m, "weight") and (
+            classname.find("Conv") != -1 or classname.find("Linear") != -1
+        ):
+            if init_type == "normal":
+                nn.init.normal_(m.weight.data, 0.0, gain)
+            elif init_type == "xavier":
+                nn.init.xavier_uniform_(m.weight.data, gain=gain)
+            elif init_type == "kaiming":
+                nn.init.kaiming_normal_(m.weight.data, a=0, mode="fan_in")
+            elif init_type == "orthogonal":
+                nn.init.orthogonal_(m.weight.data, gain=gain)
+            else:
+                raise NotImplementedError(
+                    "initialization method {} is not implemented".
+                    format(init_type)
+                )
+            if hasattr(m, "bias") and m.bias is not None:
+                nn.init.constant_(m.bias.data, 0.0)
+        elif classname.find("BatchNorm2d") != -1:
+            nn.init.constant_(m.weight.data, 1.0)
+            nn.init.constant_(m.bias.data, 0.0)
+        elif classname.find("InstanceNorm2d") != -1:
+            if m.weight is not None and m.bias is not None:
+                nn.init.constant_(m.weight.data, 1.0)
+                nn.init.constant_(m.bias.data, 0.0)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    model.apply(_init_func)
 
 
 def get_norm_layer(norm_type="instance"):
@@ -238,132 +238,92 @@ class FCN(nn.Module):
         if self.locnet is not None:
             self.locnet.fc_loc.weight.data.zero_()
             self.locnet.fc_loc.bias.data.copy_(
-                
+                torch.tensor([1, 0, 0, 1], dtype=torch.float)
             )
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    def stn(self, x):
+        """Spatial transformer network."""
+        theta = self.locnet(x)
+        grid = F.affine_grid(theta, x.size())
+        return F.grid_sample(x, grid), theta
+
+    def forward(self, x, lmda=1.0, return_p=False, return_stn_output=False):
+        """
+        Args:
+            x (torch.Tensor): input mini-batch.
+            lmda (float): multiplier for perturbation.
+            return_p (bool): return perturbation.
+            return_stn_output (bool): return the output of stn.
+        """
+        theta = None
+        if self.locnet is not None:
+            x, theta = self.stn(x)
+        input = x
+
+        x = self.backbone(x)
+        if self.gctx_fusion is not None:
+            c = F.adaptive_avg_pool2d(x, (1, 1))
+            c = c.expand_as(x)
+            x = torch.cat([x, c], 1)
+            x = self.gctx_fusion(x)
+
+        p = self.regress(x)
+        x_p = input + lmda * p
+
+        if return_stn_output:
+            return x_p, p, input
+
+        if return_p:
+            return x_p, p
+
+        return x_p
+
+
+@NETWORK_REGISTRY.register()
+def fcn_3x32_gctx(**kwargs):
+    norm_layer = get_norm_layer(norm_type="instance")
+    net = FCN(3, 3, nc=32, n_blocks=3, norm_layer=norm_layer)
+    init_network_weights(net, init_type="normal", gain=0.02)
+    return net
 
 
 @NETWORK_REGISTRY.register()
 def fcn_3x64_gctx(**kwargs):
     norm_layer = get_norm_layer(norm_type="instance")
     net = FCN(3, 3, nc=64, n_blocks=3, norm_layer=norm_layer)
+    init_network_weights(net, init_type="normal", gain=0.02)
+    return net
+
+
+@NETWORK_REGISTRY.register()
+def fcn_3x32_gctx_stn(image_size=32, **kwargs):
+    norm_layer = get_norm_layer(norm_type="instance")
+    net = FCN(
+        3,
+        3,
+        nc=32,
+        n_blocks=3,
+        norm_layer=norm_layer,
+        stn=True,
+        image_size=image_size
+    )
+    init_network_weights(net, init_type="normal", gain=0.02)
+    net.init_loc_layer()
+    return net
+
+
+@NETWORK_REGISTRY.register()
+def fcn_3x64_gctx_stn(image_size=224, **kwargs):
+    norm_layer = get_norm_layer(norm_type="instance")
+    net = FCN(
+        3,
+        3,
+        nc=64,
+        n_blocks=3,
+        norm_layer=norm_layer,
+        stn=True,
+        image_size=image_size
+    )
+    init_network_weights(net, init_type="normal", gain=0.02)
+    net.init_loc_layer()
+    return net
