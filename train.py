@@ -101,7 +101,7 @@ def main(args):
 
     # print_args(args, cfg)
     # print("Collecting env info ...")
-    # print("** System infor **\n{}\n".format(collect_env_info()))
+    # print("** System info **\n{}\n".format(collect_env_info()))
 
     trainer = build_trainer(cfg)
 
@@ -120,7 +120,7 @@ if __name__ == "__main__":
         "--root",
         type=str,
         default="",
-        help="input dataset path"
+        help="path to dataset"
     )
     parser.add_argument(
         "--output-dir",
@@ -132,7 +132,7 @@ if __name__ == "__main__":
         "--resume",
         type=str,
         default="",
-        help="checkpoint path (from where the training resumes)"
+        help="checkpoint directory (from which the training resumes)"
     )
     parser.add_argument(
         "--seed",
@@ -144,7 +144,7 @@ if __name__ == "__main__":
         "--source-domains",
         type=str,
         nargs="+",
-        help="source domains for DA/DG (can be more than one)"
+        help="source domains for DA/DG"
     )
     parser.add_argument(
         "--target-domains",
@@ -155,7 +155,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--transforms",
         type=str,
-        default="",
+        nargs="+",
         help="data augmentation methods"
     )
     parser.add_argument(
@@ -168,7 +168,7 @@ if __name__ == "__main__":
         "--dataset-config-file",
         type=str,
         default="",
-        help="dataset config file path"
+        help="path to config file for dataset setup"
     )
     parser.add_argument(
         "--trainer",
@@ -197,7 +197,7 @@ if __name__ == "__main__":
         "--model-dir",
         type=str,
         default="",
-        help="load model from this directory for eval_only mode"
+        help="load model from this directory for eval-only mode"
     )
     parser.add_argument(
         "--load-epoch",

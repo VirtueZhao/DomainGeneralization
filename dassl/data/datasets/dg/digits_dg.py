@@ -85,7 +85,6 @@ class DigitsDG(DatasetBase):
                 impath_label_list = _load_data_from_directory(split_dir)
 
             for impath, label in impath_label_list:
-                # print(impath)
                 # class_name = impath.split("/")[-2].lower()
                 class_name = impath.split("\\")[-2].lower()
                 item = Datum(
