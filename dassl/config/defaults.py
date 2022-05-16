@@ -52,7 +52,7 @@ _C.INPUT.COLORJITTER_S = 0.4
 _C.INPUT.COLORJITTER_H = 0.1
 # Random gray scale's probability
 _C.INPUT.RGS_P = 0.2
-# Gaussian Blur
+# Gaussian blur
 _C.INPUT.GB_P = 0.5     # Probability of applying this operation
 _C.INPUT.GB_K = 21      # Kernel size (should be an odd number)
 
@@ -76,7 +76,7 @@ _C.DATASET.NUM_SHOTS = -1
 # Set to 0 if do not want to use val data
 # Using val data for hyperparameter tuning was done in Oliver et al. 2018
 _C.DATASET.VAL_PERCENT = 0.1
-# Fold index for STL-10 dataset (normal range is 0-9)
+# Fold index for STL-10 dataset (normal range is 0 - 9)
 # Negative number means None
 _C.DATASET.STL10_FOLD = -1
 # CIFAR-10/100-C's corruption type and intensity level
@@ -92,7 +92,7 @@ _C.DATALOADER = CN()
 _C.DATALOADER.NUM_WORKERS = 4
 # Apply transformations to an image K times (during training)
 _C.DATALOADER.K_TRANSFORMS = 1
-# img 0 denotes image tensor without augmentation
+# img0 denotes image tensor without augmentation
 # Useful for consistency learning
 _C.DATALOADER.RETURN_IMG0 = False
 # Setting for the train_x data_loader
@@ -139,7 +139,7 @@ _C.MODEL.HEAD.NAME = ""
 # If undefined, no embedding layer will be constructed
 _C.MODEL.HEAD.HIDDEN_LAYERS = ()
 _C.MODEL.HEAD.ACTIVATION = "relu"
-_C.MODEL.BN = True
+_C.MODEL.HEAD.BN = True
 _C.MODEL.HEAD.DROPOUT = 0.0
 
 ###########################
@@ -164,8 +164,8 @@ _C.OPTIM.NEW_LAYERS = ()
 _C.OPTIM.BASE_LR_MULT = 0.1
 # Learning rate scheduler
 _C.OPTIM.LR_SCHEDULER = "single_step"
-# -1 or 0 means the step size is equal to max_epoch
-_C.OPTIM.STEPSIZE = (-1,)
+# -1 or 0 means the stepsize is equal to max_epoch
+_C.OPTIM.STEPSIZE = (-1, )
 _C.OPTIM.GAMMA = 0.1
 _C.OPTIM.MAX_EPOCH = 10
 # Set WARMUP_EPOCH larger than 0 to activate warmup training
@@ -188,8 +188,8 @@ _C.TRAIN = CN()
 # Set to 0 or negative value to only save the last one
 _C.TRAIN.CHECKPOINT_FREQ = 0
 # How often (batch) to print training information
-_C.TRAIN.PRINT_PREQ = 10
-# Use 'train_x', 'train_u', or 'smaller_one' to count
+_C.TRAIN.PRINT_FREQ = 10
+# Use 'train_x', 'train_u' or 'smaller_one' to count
 # the number of iterations in an epoch (for DA and SSL)
 _C.TRAIN.COUNT_ITER = "train_x"
 
@@ -232,11 +232,11 @@ _C.TRAINER.SE.RAMPUP = 300
 _C.TRAINER.M3SDA = CN()                 # Moment Matching for Multi-Source Domain Adaptation (ICCV'19)
 _C.TRAINER.M3SDA.LMDA = 0.5             # weight for the moment distance loss
 _C.TRAINER.M3SDA.N_STEP_F = 4           # Follow MCD
-# DEAL                                  # Multi-Source Domain Adaptation
-_C.TRAINER.DEAL = CN()                  # Domain Adaptive Ensemble Learning
-_C.TRAINER.DEAL.WEIGHT_U = 0.5          # weight on the unlabeled loss
-_C.TRAINER.DEAL.CONF_THRE = 0.95        # confidence threshold
-_C.TRAINER.DEAL.STRONG_TRANSFORMS = ()
+# DAEL                                  # Multi-Source Domain Adaptation
+_C.TRAINER.DAEL = CN()                  # Domain Adaptive Ensemble Learning
+_C.TRAINER.DAEL.WEIGHT_U = 0.5          # weight on the unlabeled loss
+_C.TRAINER.DAEL.CONF_THRE = 0.95        # confidence threshold
+_C.TRAINER.DAEL.STRONG_TRANSFORMS = ()
 
 # CrossGrad                             # Domain Generalization
 _C.TRAINER.CG = CN()                    # Generalizing Across Domains via Cross-Gradient Training (ICLR'18)
