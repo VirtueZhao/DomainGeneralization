@@ -24,14 +24,14 @@ class RandomDomainSampler(Sampler):
             self.domain_dict[item.domain].append(i)
         self.domains = list(self.domain_dict.keys())
 
-        # Make sure each domain has equal number images
+        # Make sure each domain has equal number of images
         if n_domain is None or n_domain <= 0:
             n_domain = len(self.domains)
         assert batch_size % n_domain == 0
         self.n_img_per_domain = batch_size // n_domain
 
         self.batch_size = batch_size
-        # m_domain denotes number of domains sampled in a minibatch
+        # n_domain denotes number of domains sampled in a minibatch
         self.n_domain = n_domain
         self.length = len(list(self.__iter__()))
 
@@ -147,7 +147,7 @@ class RandomClassSampler(Sampler):
         self.length = len(list(self.__iter__()))
 
     def __iter__(self):
-        batch_idx_dict = defaultdict(list)
+        batch_idxs_dict = defaultdict(list)
 
         for label in self.labels:
             idxs = copy.deepcopy(self.index_dic[label])
@@ -158,7 +158,7 @@ class RandomClassSampler(Sampler):
             for idx in idxs:
                 batch_idxs.append(idx)
                 if len(batch_idxs) == self.n_ins:
-                    batch_idx_dict[label].append(batch_idxs)
+                    batch_idxs_dict[label].append(batch_idxs)
                     batch_idxs = []
 
         avai_labels = copy.deepcopy(self.labels)
@@ -167,9 +167,9 @@ class RandomClassSampler(Sampler):
         while len(avai_labels) >= self.ncls_per_batch:
             selected_labels = random.sample(avai_labels, self.ncls_per_batch)
             for label in selected_labels:
-                batch_idxs = batch_idx_dict[label].pop(0)
+                batch_idxs = batch_idxs_dict[label].pop(0)
                 final_idxs.extend(batch_idxs)
-                if len(batch_idx_dict[label]) == 0:
+                if len(batch_idxs_dict[label]) == 0:
                     avai_labels.remove(label)
 
         return iter(final_idxs)
@@ -179,12 +179,12 @@ class RandomClassSampler(Sampler):
 
 
 def build_sampler(
-        sampler_type,
-        cfg=None,
-        data_source=None,
-        batch_size=32,
-        n_domain=0,
-        n_ins=16
+    sampler_type,
+    cfg=None,
+    data_source=None,
+    batch_size=32,
+    n_domain=0,
+    n_ins=16
 ):
     if sampler_type == "RandomSampler":
         return RandomSampler(data_source)

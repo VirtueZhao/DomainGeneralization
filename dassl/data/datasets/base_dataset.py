@@ -52,14 +52,14 @@ class DatasetBase:
     3) semi-supervised learning
     """
 
-    dataset_dir = ""                # the directory where the dataset is stored
-    domains = []                    # string names of all domains
+    dataset_dir = ""                    # the directory where the dataset is stored
+    domains = []                        # string names of all domains
 
     def __init__(self, train_x=None, train_u=None, val=None, test=None):
-        self._train_x = train_x     # labeled training data
-        self._train_u = train_u     # unlabeled training data (optional)
-        self._val = val             # validation data (optional)
-        self._test = test           # test data
+        self._train_x = train_x         # labeled training data
+        self._train_u = train_u         # unlabeled training data (optional)
+        self._val = val                 # validation data (optional)
+        self._test = test               # test data
 
         self._num_classes = self.get_num_classes(train_x)
         self._lab2cname, self._classnames = self.get_lab2cname(train_x)
@@ -143,7 +143,7 @@ class DatasetBase:
 
         try:
             tar = tarfile.open(dst)
-            tar.extractall(osp.dirname(dst))
+            tar.extractall(path=osp.dirname(dst))
             tar.close()
         except:
             zip_ref = zipfile.ZipFile(dst, "r")
@@ -171,7 +171,7 @@ class DatasetBase:
                 return data_sources[0]
             return data_sources
 
-        print(f"Creating a {num_shots} - shot dataset")
+        print(f"Creating a {num_shots}-shot dataset")
 
         output = []
 

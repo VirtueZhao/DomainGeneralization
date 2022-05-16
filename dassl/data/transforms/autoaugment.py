@@ -193,7 +193,7 @@ class SubPolicy(object):
             rot = img.convert("RGBA").rotate(magnitude)
             return Image.composite(
                 rot, Image.new("RGBA", rot.size, (128, ) * 4), rot
-            ).convert(img.node)
+            ).convert(img.mode)
 
         func = {
             "shearX":
@@ -224,7 +224,7 @@ class SubPolicy(object):
                 img.size,
                 Image.AFFINE,
                 (1, 0, 0, 0, 1, magnitude * img.size[1] * random.choice([-1, 1])),
-                fillcolor=fillcolor
+                fillcolor=fillcolor,
             ),
             "rotate":
             lambda img, magnitude: rotate_with_fill(img, magnitude),

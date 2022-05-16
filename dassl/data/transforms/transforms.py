@@ -18,7 +18,7 @@ AVAI_CHOICES = [
     "instance_norm",
     "random_crop",
     "random_translation",
-    "center_crop",
+    "center_crop",  # This has become a default operation for test
     "cutout",
     "imagenet_policy",
     "cifar10_policy",
@@ -29,13 +29,13 @@ AVAI_CHOICES = [
     "gaussian_noise",
     "colorjitter",
     "randomgrayscale",
-    "gaussian_blur"
+    "gaussian_blur",
 ]
 
 INTERPOLATION_MODES = {
     "bilinear": Image.BILINEAR,
     "bicubic": Image.BICUBIC,
-    "nearest": Image.NEAREST
+    "nearest": Image.NEAREST,
 }
 
 
@@ -94,7 +94,7 @@ class InstanceNormalization:
         C, H, W = img.shape
         img_re = img.reshape(C, H * W)
         mean = img_re.mean(1).view(C, 1, 1)
-        std = img_re.std(1).view
+        std = img_re.std(1).view(C, 1, 1)
         return (img - mean) / (std + self.eps)
 
 
@@ -263,13 +263,13 @@ def _build_transform_train(cfg, choices, target_size, normalize):
         print("+ random gray scale")
         tfm_train += [RandomGrayscale(p=cfg.INPUT.RGS_P)]
 
-    if"gaussian_blur" in choices:
+    if "gaussian_blur" in choices:
         print(f"+ gaussian blur (kernel={cfg.INPUT.GB_K})")
         tfm_train += [
             RandomApply([GaussianBlur(cfg.INPUT.GB_K)], p=cfg.INPUT.GB_P)
         ]
 
-    print("+ to torch tensor of range [0,1]")
+    print("+ to torch tensor of range [0, 1]")
     tfm_train += [ToTensor()]
 
     if "cutout" in choices:
@@ -291,7 +291,7 @@ def _build_transform_train(cfg, choices, target_size, normalize):
                 cfg.INPUT.GN_MEAN, cfg.INPUT.GN_STD
             )
         )
-    tfm_train += [GaussianNoise(cfg.INPUT.GN_MEAN, cfg.INPUT.GN_STD)]
+        tfm_train += [GaussianNoise(cfg.INPUT.GN_MEAN, cfg.INPUT.GN_STD)]
 
     if "instance_norm" in choices:
         print("+ instance normalization")

@@ -100,7 +100,7 @@ class DataManager:
             n_domain_ = cfg.DATALOADER.TRAIN_U.N_DOMAIN
             n_ins_ = cfg.DATALOADER.TRAIN_U.N_INS
 
-            if cfg.DATALOADER.TRAIN_U.SAME_AX_X:
+            if cfg.DATALOADER.TRAIN_U.SAME_AS_X:
                 sampler_type_ = cfg.DATALOADER.TRAIN_X.SAMPLER
                 batch_size_ = cfg.DATALOADER.TRAIN_X.BATCH_SIZE
                 n_domain_ = cfg.DATALOADER.TRAIN_X.N_DOMAIN
@@ -184,7 +184,7 @@ class DataManager:
         print("  # train_x: {:,}".format(len(self.dataset.train_x)))
 
         if self.dataset.train_u:
-            print("  # train_u: {}".format(len(self.dataset.train_u)))
+            print("  # train_u: {:,}".format(len(self.dataset.train_u)))
 
         if self.dataset.val:
             print("  # val: {:,}".format(len(self.dataset.val)))
@@ -197,9 +197,9 @@ class DatasetWrapper(TorchDataset):
     def __init__(self, cfg, data_source, transform=None, is_train=False):
         self.cfg = cfg
         self.data_source = data_source
-        self.transform = transform      # accept list (tuple) as input
+        self.transform = transform  # accept list (tuple) as input
         self.is_train = is_train
-        # Augmenting an image K > 1 times is only allowed during training
+        # Augmenting an image K>1 times is only allowed during training
         self.k_tfm = cfg.DATALOADER.K_TRANSFORMS if is_train else 1
         self.return_img0 = cfg.DATALOADER.RETURN_IMG0
 
@@ -247,10 +247,10 @@ class DatasetWrapper(TorchDataset):
                 img = self._transform_image(self.transform, img0)
                 output["img"] = img
 
-            if self.return_img0:
-                output["img0"] = self.to_tensor(img0)
+        if self.return_img0:
+            output["img0"] = self.to_tensor(img0)
 
-            return output
+        return output
 
     def _transform_image(self, tfm, img0):
         img_list = []
