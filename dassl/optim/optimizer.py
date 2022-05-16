@@ -21,7 +21,7 @@ def build_optimizer(model, optim_cfg):
     lr = optim_cfg.LR
     weight_decay = optim_cfg.WEIGHT_DECAY
     momentum = optim_cfg.MOMENTUM
-    sgd_dampening = optim_cfg.SGD_DAMPING
+    sgd_dampening = optim_cfg.SGD_DAMPNING
     sgd_nesterov = optim_cfg.SGD_NESTEROV
     rmsprop_alpha = optim_cfg.RMSPROP_ALPHA
     adam_beta1 = optim_cfg.ADAM_BETA1
