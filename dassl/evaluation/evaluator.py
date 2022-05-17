@@ -29,7 +29,7 @@ class Classification(EvaluatorBase):
 
     def __init__(self, cfg, lab2cname=None, **kwargs):
         super().__init__(cfg)
-        self._label2cname = lab2cname
+        self._lab2cname = lab2cname
         self._correct = 0
         self._total = 0
         self._per_class_res = None
@@ -97,7 +97,7 @@ class Classification(EvaluatorBase):
             accs = []
 
             for label in labels:
-                classname = self._label2cname[label]
+                classname = self._lab2cname[label]
                 res = self._per_class_res[label]
                 correct = sum(res)
                 total = len(res)
