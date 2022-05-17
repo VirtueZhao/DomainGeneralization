@@ -138,7 +138,7 @@ class TrainerBase:
                 },
                 osp.join(directory, name),
                 is_best=is_best,
-                model_name=model_name
+                model_name=model_name,
             )
 
     def resume_model_if_exist(self, directory):
@@ -197,8 +197,8 @@ class TrainerBase:
             epoch = checkpoint["epoch"]
 
             print(
-                "Loading weights to {}"
-                'from "{}" {epoch = {}}'.format(name, model_path, epoch)
+                "Loading weights to {} "
+                'from "{}" (epoch = {})'.format(name, model_path, epoch)
             )
             self._models[name].load_state_dict(state_dict)
 
@@ -245,7 +245,7 @@ class TrainerBase:
             self._writer.add_scalar(tag, scalar_value, global_step)
 
     def train(self, start_epoch, max_epoch):
-        """Generic training loops"""
+        """Generic training loops."""
         self.start_epoch = start_epoch
         self.max_epoch = max_epoch
 
@@ -356,12 +356,12 @@ class SimpleTrainer(TrainerBase):
         print("*****cfg*****")
 
         self.train_loader_x = dm.train_loader_x
-        self.train_loader_u = dm.train_loader_u     # Optional, can be None
-        self.val_loader = dm.val_loader             # Optional, can be None
+        self.train_loader_u = dm.train_loader_u             # Optional, can be None
+        self.val_loader = dm.val_loader                     # Optional, can be None
         self.test_loader = dm.test_loader
         self.num_classes = dm.num_classes
         self.num_source_domains = dm.num_source_domains
-        self.lab2cname = dm.lab2cname               # dict {label: classname}
+        self.lab2cname = dm.lab2cname                       # dict {label: classname}
 
         self.dm = dm
 
@@ -496,102 +496,102 @@ class SimpleTrainer(TrainerBase):
         return self._optims[name].param_groups[0]["lr"]
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+class TrainerXU(SimpleTrainer):
+    """A base trainer using both labeled and unlabeled data.
+
+    In the context of domain adaptation, labeled and unlabeled data
+    come from source and target domains respectively.
+
+    When it comes to semi-supervised learning, all data comes from the
+    same domain.
+    """
+
+    def run_epoch(self):
+        self.set_model_mode("train")
+        losses = MetricMeter()
+        batch_time = AverageMeter()
+        data_time = AverageMeter()
+
+        # Decide to iterate over labeled or unlabeled dataset
+        len_train_loader_x = len(self.train_loader_x)
+        len_train_loader_u = len(self.train_loader_u)
+        if self.cfg.TRAIN.COUNT_ITER == "train_x":
+            self.num_batches = len_train_loader_x
+        elif self.cfg.TRAIN.COUNT_ITER == "train_u":
+            self.num_batches = len_train_loader_u
+        elif self.cfg.TRAIN.COUNT_ITER == "smaller_one":
+            self.num_batches = min(len_train_loader_x, len_train_loader_u)
+        else:
+            raise ValueError
+
+        train_loader_x_iter = iter(self.train_loader_x)
+        train_loader_u_iter = iter(self.train_loader_u)
+
+        end = time.time()
+        for self.batch_idx in range(self.num_batches):
+            try:
+                batch_x = next(train_loader_x_iter)
+            except StopIteration:
+                train_loader_x_iter = iter(self.train_loader_x)
+                batch_x = next(train_loader_x_iter)
+
+            try:
+                batch_u = next(train_loader_u_iter)
+            except StopIteration:
+                train_loader_u_iter = iter(self.train_loader_u)
+                batch_u = next(train_loader_u_iter)
+
+            data_time.update(time.time() - end)
+            loss_summary = self.forward_backward(batch_x, batch_u)
+            batch_time.update(time.time() - end)
+            losses.update(loss_summary)
+
+            if (
+                self.batch_idx + 1
+            ) % self.cfg.TRAIN.PRINT_FREQ == 0 or self.num_batches < self.cfg.TRAIN.PRINT_FREQ:
+                nb_remain = 0
+                nb_remain += self.num_batches - self.batch_idx - 1
+                nb_remain += (
+                    self.max_epoch - self.epoch - 1
+                ) * self.num_batches
+                eta_seconds = batch_time.avg * nb_remain
+                eta = str(datetime.timedelta(seconds=int(eta_seconds)))
+                print(
+                    "epoch [{0}/{1}][{2}/{3}]\t"
+                    "time {batch_time.val:.3f} ({batch_time.avg:.3f})\t"
+                    "data {data_time.val:.3f} ({data_time.avg:.3f})\t"
+                    "eta {eta}\t"
+                    "{losses}\t"
+                    "lr {lr:.6e}".format(
+                        self.epoch + 1,
+                        self.max_epoch,
+                        self.batch_idx + 1,
+                        self.num_batches,
+                        batch_time=batch_time,
+                        data_time=data_time,
+                        eta=eta,
+                        losses=losses,
+                        lr=self.get_current_lr(),
+                    )
+                )
+
+            n_iter = self.epoch * self.num_batches + self.batch_idx
+            for name, meter in losses.meters.items():
+                self.write_scalar("train/" + name, meter.avg, n_iter)
+            self.write_scalar("train/lr", self.get_current_lr(), n_iter)
+
+            end = time.time()
+
+    def parse_batch_train(self, batch_x, batch_u):
+        input_x = batch_x["img"]
+        label_x = batch_x["label"]
+        input_u = batch_u["img"]
+
+        input_x = input_x.to(self.device)
+        label_x = label_x.to(self.device)
+        input_u = input_u.to(self.device)
+
+        return input_x, label_x, input_u
 
 
 class TrainerX(SimpleTrainer):
@@ -611,7 +611,7 @@ class TrainerX(SimpleTrainer):
         enumerate_t_train_loader = enumerate(t_train_loader_x)
         for a in enumerate_t_train_loader:
             print(a)
-        #     break
+            break
         print("***********************Debug*************************")
 
         for self.batch_idx, batch in enumerate(self.train_loader_x):

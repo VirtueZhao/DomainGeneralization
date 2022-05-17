@@ -32,7 +32,7 @@ class DDAIG(TrainerX):
         self.F.to(self.device)
         print("# params: {:,}".format(count_num_param(self.F)))
         self.optim_F = build_optimizer(self.F, cfg.OPTIM)
-        self.sched_F =build_lr_scheduler(self.optim_F, cfg.OPTIM)
+        self.sched_F = build_lr_scheduler(self.optim_F, cfg.OPTIM)
         self.register_model("F", self.F, self.optim_F, self.sched_F)
 
         print("Building D")
