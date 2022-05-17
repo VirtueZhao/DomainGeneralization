@@ -351,10 +351,6 @@ class SimpleTrainer(TrainerBase):
         """
         dm = DataManager(self.cfg)
 
-        print("*****cfg*****")
-        c = self.cfg
-        print("*****cfg*****")
-
         self.train_loader_x = dm.train_loader_x
         self.train_loader_u = dm.train_loader_u             # Optional, can be None
         self.val_loader = dm.val_loader                     # Optional, can be None
@@ -605,15 +601,6 @@ class TrainerX(SimpleTrainer):
         self.num_batches = len(self.train_loader_x)
 
         end = time.time()
-
-        print("***********************Debug*************************")
-        t_train_loader_x = self.train_loader_x
-        enumerate_t_train_loader = enumerate(t_train_loader_x)
-        for a in enumerate_t_train_loader:
-            print(a)
-            break
-        print("***********************Debug*************************")
-
         for self.batch_idx, batch in enumerate(self.train_loader_x):
             data_time.update(time.time() - end)
             loss_summary = self.forward_backward(batch)
