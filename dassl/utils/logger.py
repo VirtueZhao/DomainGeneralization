@@ -3,7 +3,7 @@ import sys
 import time
 import os.path as osp
 
-from dassl.utils.tools import mkdir_if_missing
+from .tools import mkdir_if_missing
 
 __all__ = ["Logger", "setup_logger"]
 

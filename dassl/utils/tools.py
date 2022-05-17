@@ -2,9 +2,9 @@
 Modified from https://github.com/KaiyangZhou/deep-person-reid
 """
 import os
-
-
-
+import sys
+import json
+import time
 import errno
 import numpy as np
 import random
@@ -15,24 +15,24 @@ import PIL
 import torch
 from PIL import Image
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+__all__ = [
+    "mkdir_if_missing",
+    "check_isfile",
+    "read_json",
+    "write_json",
+    "set_random_seed",
+    "download_url",
+    "read_image",
+    "collect_env_info",
+    "listdir_nohidden",
+    "get_most_similar_str_to_a_from_b",
+    "check_availability",
+    "tolist_if_not",
+]
 
 
 def mkdir_if_missing(dirname):
-    """Create dirname if it is missing"""
+    """Create dirname if it is missing."""
     if not osp.exists(dirname):
         try:
             os.makedirs(dirname)
@@ -56,18 +56,18 @@ def check_isfile(fpath):
     return isfile
 
 
+def read_json(fpath):
+    """Read json file from a path."""
+    with open(fpath, "r") as f:
+        obj = json.load(f)
+    return obj
 
 
-
-
-
-
-
-
-
-
-
-
+def write_json(obj, fpath):
+    """Writes to a json file."""
+    mkdir_if_missing(osp.dirname(fpath))
+    with open(fpath, "w") as f:
+        json.dump(obj, f, indent=4, separators=(",", ": "))
 
 
 def set_random_seed(seed):
@@ -77,35 +77,35 @@ def set_random_seed(seed):
     torch.cuda.manual_seed_all(seed)
 
 
+def download_url(url, dst):
+    """Download file from a url to a destination.
 
+    Args:
+        url (str): url to download file.
+        dst (str): destination path.
+    """
+    from six.moves import urllib
 
+    print('* url="{}"'.format(url))
+    print('* destination="{}"'.format(dst))
 
+    def _reporthook(count, block_size, total_size):
+        global start_time
+        if count == 0:
+            start_time = time.time()
+            return
+        duration = time.time() - start_time
+        progress_size = int(count * block_size)
+        speed = int(progress_size / (1024 * duration))
+        percent = int(count * block_size * 100 / total_size)
+        sys.stdout.write(
+            "\r...%d%%, %d MB, %d KB/s, %d seconds passed" %
+            (percent, progress_size / (1024 * 1024), speed, duration)
+        )
+        sys.stdout.flush()
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    urllib.request.urlretrieve(url, dst, _reporthook)
+    sys.stdout.write("\n")
 
 
 def read_image(path):
@@ -123,7 +123,7 @@ def read_image(path):
     while True:
         try:
             img = Image.open(path).convert("RGB")
-            return
+            return img
         except IOError:
             print(
                 "Cannot read image from {}, "
@@ -184,7 +184,7 @@ def check_availability(requested, available):
         psb_ans = get_most_similar_str_to_a_from_b(requested, available)
         raise ValueError(
             "The requested one is expected "
-            "to belong to {}, but got [{}]"
+            "to belong to {}, but got [{}] "
             "(do you mean [{}]?)".format(available, requested, psb_ans)
         )
 

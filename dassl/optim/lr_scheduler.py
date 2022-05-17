@@ -2,8 +2,8 @@
 Modified from https://github.com/KaiyangZhou/deep-person-reid
 """
 import torch
-# from torch.optim.lr_scheduler import _LRSchduler
-from .pytorch_lr_scheduler import _LRScheduler
+from torch.optim.lr_scheduler import _LRScheduler
+
 AVAI_SCHEDS = ["single_step", "multi_step", "cosine"]
 
 

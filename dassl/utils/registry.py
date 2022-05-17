@@ -11,21 +11,21 @@ class Registry:
     To create a registry (e.g. a backbone registry):
 
     .. code-block:: python
-    
+
         BACKBONE_REGISTRY = Registry('BACKBONE')
-    
-    To register an object
-    
-    `` code-block :: python
-    
+
+    To register an object:
+
+    .. code-block:: python
+
         @BACKBONE_REGISTRY.register()
         class MyBackbone(nn.Module):
             ...
-    
+
     Or:
-    
-    .. code-block :: python
-    
+
+    .. code-block:: python
+
         BACKBONE_REGISTRY.register(MyBackbone)
     """
 
@@ -44,7 +44,7 @@ class Registry:
 
     def register(self, obj=None, force=False):
         if obj is None:
-            #   Used as a decorator
+            # Used as a decorator
             def wrapper(fn_or_class):
                 name = fn_or_class.__name__
                 self._do_register(name, fn_or_class, force=force)
