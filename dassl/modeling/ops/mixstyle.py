@@ -1,56 +1,56 @@
 import random
-
+from contextlib import contextmanager
 import torch
 import torch.nn as nn
 
 
+def deactivate_mixstyle(m):
+    if type(m) == MixStyle:
+        m.set_activation_status(False)
 
 
+def activate_mixstyle(m):
+    if type(m) == MixStyle:
+        m.set_activation_status(True)
 
 
+def random_mixstyle(m):
+    if type(m) == MixStyle:
+        m.update_mix_method("random")
 
 
+def crossdomain_mixstyle(m):
+    if type(m) == MixStyle:
+        m.update_mix_method("crossdomain")
 
 
+@contextmanager
+def run_without_mixstyle(model):
+    # Assume MixStyle was initially activated
+    try:
+        model.apply(deactivate_mixstyle)
+        yield
+    finally:
+        model.apply(activate_mixstyle)
 
 
+@contextmanager
+def run_with_mixstyle(model, mix=None):
+    # Assume MixStyle was initially deactivated
+    if mix == "random":
+        model.apply(random_mixstyle)
+
+    elif mix == "crossdomain":
+        model.apply(crossdomain_mixstyle)
+
+    try:
+        model.apply(activate_mixstyle)
+        yield
+    finally:
+        model.apply(deactivate_mixstyle)
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-class MixStyle(nn.Modoule):
+class MixStyle(nn.Module):
     """MixStyle.
 
     Reference:
@@ -67,7 +67,7 @@ class MixStyle(nn.Modoule):
         """
         super().__init__()
         self.p = p
-        self.beta = torch.distribution.Beta(alpha, alpha)
+        self.beta = torch.distributions.Beta(alpha, alpha)
         self.eps = eps
         self.alpha = alpha
         self.mix = mix
@@ -91,7 +91,7 @@ class MixStyle(nn.Modoule):
         if random.random() > self.p:
             return x
 
-        B =x.size(0)
+        B = x.size(0)
 
         mu = x.mean(dim=[2, 3], keepdim=True)
         var = x.var(dim=[2, 3], keepdim=True)
@@ -108,7 +108,7 @@ class MixStyle(nn.Modoule):
 
         elif self.mix == "crossdomain":
             # split into two halves and swap the order
-            perm = torch.arange(B - 1, -1, -1)      # inverse index
+            perm = torch.arange(B - 1, -1, -1)  # inverse index
             perm_b, perm_a = perm.chunk(2)
             perm_b = perm_b[torch.randperm(perm_b.shape[0])]
             perm_a = perm_a[torch.randperm(perm_a.shape[0])]

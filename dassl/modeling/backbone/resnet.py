@@ -153,9 +153,9 @@ class ResNet(Backbone):
                     planes * block.expansion,
                     kernel_size=1,
                     stride=stride,
-                    bias=False
+                    bias=False,
                 ),
-                nn.BatchNorm2d(planes * block.expansion)
+                nn.BatchNorm2d(planes * block.expansion),
             )
 
         layers = []
@@ -265,7 +265,7 @@ def resnet101(pretrained=True, **kwargs):
 
 @BACKBONE_REGISTRY.register()
 def resnet152(pretrained=True, **kwargs):
-    model = ResNet(block=Bottleneck, layers=[3, 8, 36, 32])
+    model = ResNet(block=Bottleneck, layers=[3, 8, 36, 3])
 
     if pretrained:
         init_pretrained_weights(model, model_urls["resnet152"])
@@ -286,7 +286,7 @@ def resnet18_ms_l123(pretrained=True, **kwargs):
         block=BasicBlock,
         layers=[2, 2, 2, 2],
         ms_class=MixStyle,
-        ms_layers=["layer1", "layer2", "layer3"]
+        ms_layers=["layer1", "layer2", "layer3"],
     )
 
     if pretrained:
@@ -303,7 +303,7 @@ def resnet18_ms_l12(pretrained=True, **kwargs):
         block=BasicBlock,
         layers=[2, 2, 2, 2],
         ms_class=MixStyle,
-        ms_layers=["layer1", "layer2"]
+        ms_layers=["layer1", "layer2"],
     )
 
     if pretrained:
@@ -337,7 +337,7 @@ def resnet50_ms_l123(pretrained=True, **kwargs):
         block=Bottleneck,
         layers=[3, 4, 6, 3],
         ms_class=MixStyle,
-        ms_layers=["layer1", "layer2", "layer3"]
+        ms_layers=["layer1", "layer2", "layer3"],
     )
 
     if pretrained:
@@ -354,7 +354,7 @@ def resnet50_ms_l12(pretrained=True, **kwargs):
         block=Bottleneck,
         layers=[3, 4, 6, 3],
         ms_class=MixStyle,
-        ms_layers=["layer1", "layer2"]
+        ms_layers=["layer1", "layer2"],
     )
 
     if pretrained:
@@ -388,13 +388,13 @@ def resnet101_ms_l123(pretrained=True, **kwargs):
         block=Bottleneck,
         layers=[3, 4, 23, 3],
         ms_class=MixStyle,
-        ms_layers=["layer1", "layer2", "layer3"]
+        ms_layers=["layer1", "layer2", "layer3"],
     )
 
     if pretrained:
         init_pretrained_weights(model, model_urls["resnet101"])
 
-    return
+    return model
 
 
 @BACKBONE_REGISTRY.register()
@@ -405,7 +405,7 @@ def resnet101_ms_l12(pretrained=True, **kwargs):
         block=Bottleneck,
         layers=[3, 4, 23, 3],
         ms_class=MixStyle,
-        ms_layers=["layer1", "layer2"]
+        ms_layers=["layer1", "layer2"],
     )
 
     if pretrained:
@@ -444,7 +444,7 @@ def resnet18_efdmix_l123(pretrained=True, **kwargs):
         block=BasicBlock,
         layers=[2, 2, 2, 2],
         ms_class=EFDMix,
-        ms_layers=["layer1", "layer2", "layer3"]
+        ms_layers=["layer1", "layer2", "layer3"],
     )
 
     if pretrained:
@@ -461,7 +461,7 @@ def resnet18_efdmix_l12(pretrained=True, **kwargs):
         block=BasicBlock,
         layers=[2, 2, 2, 2],
         ms_class=EFDMix,
-        ms_layers=["layer1", "layer2"]
+        ms_layers=["layer1", "layer2"],
     )
 
     if pretrained:
@@ -495,7 +495,7 @@ def resnet50_efdmix_l123(pretrained=True, **kwargs):
         block=Bottleneck,
         layers=[3, 4, 6, 3],
         ms_class=EFDMix,
-        ms_layers=["layer1", "layer2", "layer3"]
+        ms_layers=["layer1", "layer2", "layer3"],
     )
 
     if pretrained:
@@ -512,7 +512,7 @@ def resnet50_efdmix_l12(pretrained=True, **kwargs):
         block=Bottleneck,
         layers=[3, 4, 6, 3],
         ms_class=EFDMix,
-        ms_layers=["layer1", "layer2"]
+        ms_layers=["layer1", "layer2"],
     )
 
     if pretrained:
@@ -546,7 +546,7 @@ def resnet101_efdmix_l123(pretrained=True, **kwargs):
         block=Bottleneck,
         layers=[3, 4, 23, 3],
         ms_class=EFDMix,
-        ms_layers=["layer1", "layer2", "layer3"]
+        ms_layers=["layer1", "layer2", "layer3"],
     )
 
     if pretrained:
@@ -563,7 +563,7 @@ def resnet101_efdmix_l12(pretrained=True, **kwargs):
         block=Bottleneck,
         layers=[3, 4, 23, 3],
         ms_class=EFDMix,
-        ms_layers=["layer1", "layer2"]
+        ms_layers=["layer1", "layer2"],
     )
 
     if pretrained:

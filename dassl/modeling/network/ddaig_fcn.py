@@ -19,7 +19,7 @@ def init_network_weights(model, init_type="normal", gain=0.02):
             if init_type == "normal":
                 nn.init.normal_(m.weight.data, 0.0, gain)
             elif init_type == "xavier":
-                nn.init.xavier_uniform_(m.weight.data, gain=gain)
+                nn.init.xavier_normal_(m.weight.data, gain=gain)
             elif init_type == "kaiming":
                 nn.init.kaiming_normal_(m.weight.data, a=0, mode="fan_in")
             elif init_type == "orthogonal":
@@ -53,7 +53,7 @@ def get_norm_layer(norm_type="instance"):
         norm_layer = None
     else:
         raise NotImplementedError(
-            "normalization layer [%s] is not found " % norm_type
+            "normalization layer [%s] is not found" % norm_type
         )
     return norm_layer
 
@@ -85,7 +85,7 @@ class ResnetBlock(nn.Module):
         conv_block += [
             nn.Conv2d(dim, dim, kernel_size=3, padding=p, bias=use_bias),
             norm_layer(dim),
-            nn.ReLU(True)
+            nn.ReLU(True),
         ]
         if use_dropout:
             conv_block += [nn.Dropout(0.5)]
@@ -103,7 +103,7 @@ class ResnetBlock(nn.Module):
             )
         conv_block += [
             nn.Conv2d(dim, dim, kernel_size=3, padding=p, bias=use_bias),
-            norm_layer(dim)
+            norm_layer(dim),
         ]
 
         return nn.Sequential(*conv_block)
@@ -122,7 +122,7 @@ class LocNet(nn.Module):
         n_blocks=3,
         use_dropout=False,
         padding_type="zero",
-        image_size=32
+        image_size=32,
     ):
         super().__init__()
 
@@ -141,7 +141,7 @@ class LocNet(nn.Module):
                     padding_type=padding_type,
                     norm_layer=nn.BatchNorm2d,
                     use_dropout=use_dropout,
-                    use_bias=False
+                    use_bias=False,
                 )
             ]
             backbone += [nn.MaxPool2d(2, stride=2)]
@@ -174,7 +174,7 @@ class FCN(nn.Module):
         padding_type="reflect",
         gctx=True,
         stn=False,
-        image_size=32
+        image_size=32,
     ):
         super().__init__()
 
@@ -204,7 +204,7 @@ class FCN(nn.Module):
                     padding_type=padding_type,
                     norm_layer=norm_layer,
                     use_dropout=use_dropout,
-                    use_bias=False
+                    use_bias=False,
                 )
             ]
         self.backbone = nn.Sequential(*backbone)
@@ -217,14 +217,14 @@ class FCN(nn.Module):
                     2 * nc, nc, kernel_size=1, stride=1, padding=0, bias=False
                 ),
                 norm_layer(nc),
-                nn.ReLU(True)
+                nn.ReLU(True),
             )
 
         self.regress = nn.Sequential(
             nn.Conv2d(
                 nc, output_nc, kernel_size=1, stride=1, padding=0, bias=True
             ),
-            nn.Tanh()
+            nn.Tanh(),
         )
 
         self.locnet = None
