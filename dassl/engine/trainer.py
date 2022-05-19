@@ -316,7 +316,8 @@ class SimpleTrainer(TrainerBase):
         self.check_cfg(cfg)
 
         if torch.cuda.is_available() and cfg.USE_CUDA:
-            self.device = torch.device("cuda")
+            cuda = "cuda:" + cfg.GPU
+            self.device = torch.device(cuda)
         else:
             self.device = torch.device("cpu")
 

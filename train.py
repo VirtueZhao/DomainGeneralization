@@ -84,6 +84,9 @@ def setup_cfg(args):
     # 4. From optional input arguments
     cfg.merge_from_list(args.opts)
 
+    # 5. Specify GPU
+    cfg.GPU = args.gpu
+
     cfg.freeze()
 
     return cfg
@@ -99,9 +102,9 @@ def main(args):
     if torch.cuda.is_available() and cfg.USE_CUDA:
         torch.backends.cudnn.benchmark = True
 
-    # print_args(args, cfg)
-    # print("Collecting env info ...")
-    # print("** System info **\n{}\n".format(collect_env_info()))
+    print_args(args, cfg)
+    print("Collecting env info ...")
+    print("** System info **\n{}\n".format(collect_env_info()))
 
     trainer = build_trainer(cfg)
 
@@ -116,6 +119,12 @@ def main(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--gpu",
+        type=str,
+        default="0",
+        help="specify GPU"
+    )
     parser.add_argument(
         "--root",
         type=str,
