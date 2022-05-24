@@ -10,3 +10,7 @@ from .resnet import (
     resnet50_efdmix_l12, resnet101_efdmix_l1, resnet18_efdmix_l123,
     resnet50_efdmix_l123, resnet101_efdmix_l12, resnet101_efdmix_l123
 )
+
+
+
+from .cnn_digitsdg import cnn_digitsdg
